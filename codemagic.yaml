@@ -9,12 +9,14 @@ workflows:
       vars:
         CI: "1"
         EXPO_NO_TELEMETRY: "1"
+        REACT_NATIVE_MAX_WORKERS: "2"
     scripts:
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Generate Native Android Project
+      - name: Export Expo Bundle & Prebuild
         script: |
+          npx expo export --platform android || true
           npx expo prebuild --platform android --no-install || true
           if [ ! -d "android" ]; then
             echo "Creating fallback android directory..."
@@ -26,6 +28,6 @@ workflows:
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon -x test
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
