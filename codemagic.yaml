@@ -12,15 +12,14 @@ workflows:
     scripts:
       - name: Install dependencies
         script: |
-          npm install
+          npm install --legacy-peer-deps
       - name: Generate Android project
         script: |
           npx expo prebuild --platform android --clean --no-install || true
-      - name: Build Android APK
+      - name: Fix and Build Android APK
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew clean
-          ./gradlew assembleRelease --no-daemon
+          ./gradlew assembleRelease --stacktrace --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
