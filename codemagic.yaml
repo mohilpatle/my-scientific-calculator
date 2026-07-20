@@ -9,25 +9,34 @@ workflows:
       vars:
         CI: "1"
         EXPO_NO_TELEMETRY: "1"
-        REACT_NATIVE_MAX_WORKERS: "2"
     scripts:
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Export Expo Bundle & Prebuild
+      - name: Fix App Config and Prebuild Android
         script: |
-          npx expo export --platform android || true
-          npx expo prebuild --platform android --no-install || true
-          if [ ! -d "android" ]; then
-            echo "Creating fallback android directory..."
-            npx @react-native-community/cli init TempApp --template react-native-template-typescript --skip-install
-            cp -r TempApp/android ./
-            rm -rf TempApp
-          fi
+          node -e '
+          const fs = require("fs");
+          if (fs.existsSync("app.json")) {
+            let cfg = JSON.parse(fs.readFileSync("app.json", "utf8"));
+            if (cfg.expo) {
+              delete cfg.expo.icon;
+              delete cfg.expo.splash;
+              if (cfg.expo.android) {
+                delete cfg.expo.android.adaptiveIcon;
+                cfg.expo.android.package = "com.mohil.scientificcalculator";
+              } else {
+                cfg.expo.android = { package: "com.mohil.scientificcalculator" };
+              }
+            }
+            fs.writeFileSync("app.json", JSON.stringify(cfg, null, 2));
+          }
+          '
+          npx expo prebuild --platform android --clean
       - name: Build Android APK
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon -x test
+          ./gradlew assembleDebug --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
