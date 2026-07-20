@@ -13,9 +13,15 @@ workflows:
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Generate Bare Android Project
+      - name: Generate Native Android Project
         script: |
-          npx expo prebuild --platform android --template bare-minimum --no-install || true
+          npx expo prebuild --platform android --no-install || true
+          if [ ! -d "android" ]; then
+            echo "Creating fallback android directory..."
+            npx @react-native-community/cli init TempApp --template react-native-template-typescript --skip-install
+            cp -r TempApp/android ./
+            rm -rf TempApp
+          fi
       - name: Build Android APK
         script: |
           cd android
