@@ -10,16 +10,17 @@ workflows:
         CI: "1"
         EXPO_NO_TELEMETRY: "1"
     scripts:
-      - name: Install dependencies
+      - name: Install EAS CLI and Dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Generate Android project
+          npm install -g eas-cli
+      - name: Run Expo Prebuild & Fix Config
         script: |
-          npx expo prebuild --platform android --clean --no-install || true
+          npx expo prebuild --platform android --clean
       - name: Build Android APK
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --stacktrace --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
