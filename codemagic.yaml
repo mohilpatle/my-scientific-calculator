@@ -34,14 +34,10 @@ workflows:
           }
           '
           npx expo prebuild --platform android --clean
-      - name: Embed Offline JavaScript Bundle
-        script: |
-          mkdir -p android/app/src/main/assets
-          npx react-native bundle --platform android --dev false --entry-file node_modules/expo/AppEntry.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/
-      - name: Build Android APK
+      - name: Build Standalone Offline Android APK
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleRelease --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
