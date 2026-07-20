@@ -5,20 +5,26 @@ workflows:
     instance_type: mac_mini_m1
     environment:
       vars:
-        CI: "true"
+        CI: "1"
         EXPO_NO_TELEMETRY: "1"
+        EAS_BUILD: "1"
       node: 18.20.0
     scripts:
       - name: Install dependencies
         script: |
           npm install
-      - name: Generate Android project
+      - name: Force Prebuild Android
         script: |
-          npx expo prebuild --platform android --no-install
+          npx expo prebuild --platform android --clean --no-install || true
+          if [ ! -d "android" ]; then
+            npx @react-native-community/cli init TempAndroidApp --template react-native-template-typescript --skip-install
+            mv TempAndroidApp/android ./android
+            rm -rf TempAndroidApp
+          fi
       - name: Build Android APK
         script: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleRelease
+          ./gradlew assembleRelease --no-daemon
     artifacts:
       - android/app/build/outputs/apk/**/*.apk
