@@ -6,6 +6,7 @@ workflows:
     environment:
       vars:
         CI: 1
+        EXPO_NO_TELEMETRY: 1
       node: 18.20.0
     scripts:
       - name: Install dependencies
@@ -13,7 +14,7 @@ workflows:
           npm install
       - name: Generate Android project
         script: |
-          npx expo prebuild --platform android --clean
+          npx expo prebuild --platform android --template bare-minimum
       - name: Build Android APK
         script: |
           cd android
