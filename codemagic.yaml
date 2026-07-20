@@ -13,13 +13,14 @@ workflows:
       - name: Install dependencies
         script: |
           npm install --legacy-peer-deps
-      - name: Fix App Config and Prebuild Android
+      - name: Set App Name and Prebuild Android
         script: |
           node -e '
           const fs = require("fs");
           if (fs.existsSync("app.json")) {
             let cfg = JSON.parse(fs.readFileSync("app.json", "utf8"));
             if (cfg.expo) {
+              cfg.expo.name = "My Scientific Calculator";
               delete cfg.expo.icon;
               delete cfg.expo.splash;
               if (cfg.expo.android) {
